@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.News;
 import com.example.demo.repository.NewsRepository;
+import java.util.NoSuchElementException;
 
 @Service
 public class NewsServiceImpl implements NewsService {
@@ -31,19 +32,17 @@ public class NewsServiceImpl implements NewsService {
 
 		@Override
 		public News saveComment(News news) {		
-			News savedNews = newsRepository.save(news);
+		Optional<News> savedNews = newsRepository.findById(news.getId());
+		
+		if (savedNews.isPresent()) {
+			News existingNews = savedNews.get();
+			existingNews.setComment(news.getComment());
 
-		    if (savedNews.getId() != null) {
-		        return savedNews;
-		    } else {
-		      
-		        throw new RuntimeException("Failed to save news");
-		    }
+			return newsRepository.save(existingNews);
+		} else {
+			throw new NoSuchElementException("News with given ID does not exist");
+		}
 		
 		}
-
-	   
-	
-
 
 }
